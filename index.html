@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Medicinas</title>
+<style>
+  :root{
+    --bg:#0f1b1c;
+    --panel:#132628;
+    --panel-2:#16302f;
+    --teal:#3ea89a;
+    --teal-bright:#5fd6c4;
+    --amber:#e0a458;
+    --text:#eaf3f1;
+    --text-dim:#9db5b1;
+    --line:#20393a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(62,168,154,0.14), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height:100vh;
+    padding:24px 16px 60px;
+  }
+  .display{
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  header{
+    max-width:520px;
+    margin:0 auto 22px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--teal-bright);
+    margin:0 0 6px;
+    font-weight:600;
+  }
+  h1{
+    font-size:28px;
+    margin:0 0 4px;
+    font-weight:600;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:14px;
+    margin:0;
+  }
+  .clock-panel{
+    max-width:520px;
+    margin:0 auto 20px;
+    background:linear-gradient(160deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  #clock{
+    font-size:34px;
+    font-weight:300;
+    letter-spacing:0.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .next-dose{
+    text-align:right;
+  }
+  .next-dose .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+    margin-bottom:4px;
+  }
+  .next-dose .name{
+    font-size:16px;
+    font-weight:600;
+    color:var(--teal-bright);
+  }
+  .next-dose .time{
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .status-bar{
+    max-width:520px;
+    margin:0 auto 22px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    font-size:13px;
+    color:var(--text-dim);
+    padding:0 4px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--text-dim);
+    flex-shrink:0;
+  }
+  .dot.on{background:var(--teal-bright); box-shadow:0 0 8px var(--teal-bright);}
+  button.enable{
+    margin-left:auto;
+    background:var(--teal);
+    color:#04201d;
+    border:none;
+    padding:8px 14px;
+    border-radius:20px;
+    font-weight:600;
+    font-size:12px;
+    cursor:pointer;
+  }
+  button.enable:hover{background:var(--teal-bright);}
+  .timeline{
+    max-width:520px;
+    margin:0 auto;
+    position:relative;
+    padding-left:28px;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:9px; top:6px; bottom:6px;
+    width:2px;
+    background:var(--line);
+  }
+  .dose{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    transition:border-color .2s, background .2s;
+  }
+  .dose::before{
+    content:"";
+    position:absolute;
+    left:-23px; top:22px;
+    width:12px;height:12px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--text-dim);
+  }
+  .dose.taken{
+    opacity:0.5;
+  }
+  .dose.taken::before{
+    background:var(--teal);
+    border-color:var(--teal);
+  }
+  .dose.due{
+    border-color:var(--amber);
+    background:linear-gradient(160deg, #2a2214, var(--panel));
+  }
+  .dose.due::before{
+    background:var(--amber);
+    border-color:var(--amber);
+    box-shadow:0 0 10px var(--amber);
+  }
+  .dose-info .time{
+    font-size:12px;
+    color:var(--teal-bright);
+    letter-spacing:0.06em;
+    margin-bottom:3px;
+    font-weight:600;
+  }
+  .dose-info .med{
+    font-size:16px;
+    font-weight:600;
+  }
+  .dose-actions button{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    padding:7px 12px;
+    border-radius:10px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .dose-actions button:hover{
+    border-color:var(--teal);
+    color:var(--teal-bright);
+  }
+  .dose.taken .dose-actions button{
+    border-color:var(--teal);
+    color:var(--teal);
+  }
+  footer{
+    max-width:520px;
+    margin:26px auto 0;
+    text-align:center;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  footer button{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    padding:8px 16px;
+    border-radius:20px;
+    font-size:12px;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Recordatorio diario</p>
+  <h1 class="display">Mis Medicinas</h1>
+  <p class="sub">Te avisaré por voz a cada hora indicada, mientras esta página esté abierta.</p>
+</header>
+
+<div class="clock-panel">
+  <div id="clock">--:--</div>
+  <div class="next-dose">
+    <div class="label">Próxima toma</div>
+    <div class="name" id="next-name">—</div>
+    <div class="time" id="next-time">—</div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="dot" id="voice-dot"></div>
+  <span id="voice-status">Voz no activada</span>
+  <button class="enable" id="enable-btn">Activar voz</button>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<footer>
+  <button id="reset-btn">Reiniciar marcas de hoy</button>
+</footer>
+
+<script>
+const schedule = [
+  { id:'metoprolol-am', time:'10:00', med:'Metoprolol' },
+  { id:'espironolactona', time:'11:00', med:'Espironolactona' },
+  { id:'alopurinol', time:'13:00', med:'Alopurinol' },
+  { id:'metformina-glib', time:'19:00', med:'Metformina y Glibenclamida' },
+  { id:'metoprolol-pm', time:'22:00', med:'Metoprolol' },
+];
+
+let voiceEnabled = false;
+let spokenToday = {};
+let takenToday = {};
+const todayKey = () => new Date().toISOString().slice(0,10);
+const storageKey = 'spoken-' + todayKey();
+const takenKey = 'taken-' + todayKey();
+
+function toMinutes(hhmm){
+  const [h,m] = hhmm.split(':').map(Number);
+  return h*60+m;
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'es-MX';
+  utter.rate = 0.95;
+  utter.pitch = 1;
+  const voices = speechSynthesis.getVoices();
+  const esVoice = voices.find(v => v.lang && v.lang.startsWith('es'));
+  if(esVoice) utter.voice = esVoice;
+  speechSynthesis.speak(utter);
+}
+
+function announce(dose){
+  speak(`Es hora de tomar tu medicina. ${dose.med}, programado para las ${dose.time}.`);
+}
+
+async function loadState(){
+  try{
+    const s = await window.storage.get(storageKey, false);
+    spokenToday = s ? JSON.parse(s.value) : {};
+  }catch(e){ spokenToday = {}; }
+  try{
+    const t = await window.storage.get(takenKey, false);
+    takenToday = t ? JSON.parse(t.value) : {};
+  }catch(e){ takenToday = {}; }
+}
+
+async function saveSpoken(){
+  try{ await window.storage.set(storageKey, JSON.stringify(spokenToday), false); }catch(e){}
+}
+async function saveTaken(){
+  try{ await window.storage.set(takenKey, JSON.stringify(takenToday), false); }catch(e){}
+}
+
+function render(){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', hour12:false});
+
+  const timeline = document.getElementById('timeline');
+  timeline.innerHTML = '';
+
+  let next = null;
+  schedule.forEach(d => {
+    const dMin = toMinutes(d.time);
+    if(!takenToday[d.id] && dMin >= nowMin && !next) next = d;
+  });
+  if(!next){
+    next = schedule.find(d => !takenToday[d.id]) || null;
+  }
+
+  schedule.forEach(d => {
+    const dMin = toMinutes(d.time);
+    const isTaken = !!takenToday[d.id];
+    const isDue = !isTaken && Math.abs(dMin - nowMin) <= 15 && dMin <= nowMin;
+
+    const el = document.createElement('div');
+    el.className = 'dose' + (isTaken ? ' taken' : '') + (isDue ? ' due' : '');
+    el.innerHTML = `
+      <div class="dose-info">
+        <div class="time">${d.time} HRS</div>
+        <div class="med">${d.med}</div>
+      </div>
+      <div class="dose-actions">
+        <button data-id="${d.id}">${isTaken ? 'Tomada ✓' : 'Marcar tomada'}</button>
+      </div>
+    `;
+    timeline.appendChild(el);
+  });
+
+  document.querySelectorAll('.dose-actions button').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      takenToday[id] = !takenToday[id];
+      await saveTaken();
+      render();
+    });
+  });
+
+  if(next){
+    document.getElementById('next-name').textContent = next.med;
+    document.getElementById('next-time').textContent = next.time + ' hrs';
+  } else {
+    document.getElementById('next-name').textContent = 'Todo tomado hoy';
+    document.getElementById('next-time').textContent = '—';
+  }
+}
+
+function checkAlarms(){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  schedule.forEach(d => {
+    const dMin = toMinutes(d.time);
+    if(voiceEnabled && dMin === nowMin && !spokenToday[d.id]){
+      announce(d);
+      spokenToday[d.id] = true;
+      saveSpoken();
+      render();
+    }
+  });
+}
+
+document.getElementById('enable-btn').addEventListener('click', () => {
+  voiceEnabled = true;
+  document.getElementById('voice-dot').classList.add('on');
+  document.getElementById('voice-status').textContent = 'Voz activada';
+  document.getElementById('enable-btn').textContent = 'Probar voz';
+  speak('Aviso de voz activado. Te recordaré cada medicina a su hora.');
+});
+
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  takenToday = {};
+  spokenToday = {};
+  await saveTaken();
+  await saveSpoken();
+  render();
+});
+
+(async function init(){
+  await loadState();
+  render();
+  setInterval(() => { render(); checkAlarms(); }, 15000);
+  if('speechSynthesis' in window){
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+})();
+</script>
+
+</body>
+</html>
