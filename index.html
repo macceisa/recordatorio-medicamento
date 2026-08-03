@@ -12,6 +12,7 @@
     --teal:#3ea89a;
     --teal-bright:#5fd6c4;
     --amber:#e0a458;
+    --danger:#e05858;
     --text:#eaf3f1;
     --text-dim:#9db5b1;
     --line:#20393a;
@@ -116,6 +117,7 @@
     cursor:pointer;
   }
   button.enable:hover{background:var(--teal-bright);}
+  
   .timeline{
     max-width:520px;
     margin:0 auto;
@@ -178,6 +180,11 @@
     font-size:16px;
     font-weight:600;
   }
+  .dose-actions{
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+  }
   .dose-actions button{
     background:transparent;
     border:1px solid var(--line);
@@ -186,18 +193,72 @@
     border-radius:10px;
     font-size:12px;
     cursor:pointer;
+    white-space: nowrap;
   }
   .dose-actions button:hover{
     border-color:var(--teal);
     color:var(--teal-bright);
   }
-  .dose.taken .dose-actions button{
+  .dose-actions .delete-btn{
+    border-color: rgba(224, 88, 88, 0.3);
+    color: rgba(224, 88, 88, 0.8);
+  }
+  .dose-actions .delete-btn:hover{
+    border-color:var(--danger);
+    color:var(--danger);
+    background: rgba(224, 88, 88, 0.1);
+  }
+  .dose.taken .dose-actions button:not(.delete-btn){
     border-color:var(--teal);
     color:var(--teal);
   }
+
+  /* Panel para agregar medicinas */
+  .add-panel{
+    max-width:520px;
+    margin:30px auto 20px;
+    background:var(--panel);
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:20px;
+  }
+  .add-panel h3{
+    margin: 0 0 15px 0;
+    color: var(--teal-bright);
+    font-size: 16px;
+  }
+  .add-form{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .add-form input{
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .add-form input[type="text"]{ flex: 1; min-width: 150px; }
+  .add-form input[type="time"]{ width: 110px; }
+  .add-form button{
+    background: var(--teal);
+    color: #04201d;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+  }
+  .add-form button:hover{ background: var(--teal-bright); }
+
   footer{
     max-width:520px;
-    margin:26px auto 0;
+    margin:10px auto 0;
     text-align:center;
     font-size:12px;
     color:var(--text-dim);
@@ -218,7 +279,7 @@
 <header>
   <p class="eyebrow">Recordatorio diario</p>
   <h1 class="display">Mis Medicinas</h1>
-  <p class="sub">Te avisaré por voz a cada hora indicada, mientras esta página esté abierta.</p>
+  <p class="sub">Te avisaré por voz a cada hora indicada. Si no la tomas, te recordaré cada 3 minutos.</p>
 </header>
 
 <div class="clock-panel">
@@ -238,40 +299,110 @@
 
 <div class="timeline" id="timeline"></div>
 
+<div class="add-panel">
+  <h3>+ Agregar nueva medicina</h3>
+  <div class="add-form">
+    <input type="text" id="new-med-name" placeholder="Nombre de la medicina">
+    <input type="time" id="new-med-time">
+    <button id="add-med-btn">Agregar</button>
+  </div>
+</div>
+
 <footer>
   <button id="reset-btn">Reiniciar marcas de hoy</button>
 </footer>
 
 <script>
-const schedule = [
-  { id:'metoprolol-am', time:'10:00', med:'Metoprolol' },
-  { id:'espironolactona', time:'11:00', med:'Espironolactona' },
-  { id:'alopurinol', time:'13:00', med:'Alopurinol' },
-  { id:'metformina-glib', time:'19:00', med:'Metformina y Glibenclamida' },
-  { id:'metoprolol-pm', time:'22:00', med:'Metoprolol' },
-];
-
+// --- CONFIGURACIÓN INICIAL ---
+let schedule = [];
 let voiceEnabled = false;
 let spokenToday = {};
 let takenToday = {};
+let lastReminded = {}; // Controla cuándo fue el último recordatorio repetido
+
 const todayKey = () => new Date().toISOString().slice(0,10);
 const storageKey = 'spoken-' + todayKey();
 const takenKey = 'taken-' + todayKey();
+const scheduleKey = 'medicine-schedule'; // Guardar medicinas permanentemente
+
+// --- MANEJO DE ALMACENAMIENTO ---
+async function storageGet(key) {
+  try {
+    if (window.storage && window.storage.get) {
+      const s = await window.storage.get(key, false);
+      return s ? JSON.parse(s.value) : null;
+    } else {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    }
+  } catch(e) { return null; }
+}
+
+async function storageSet(key, value) {
+  try {
+    if (window.storage && window.storage.set) {
+      await window.storage.set(key, JSON.stringify(value), false);
+    } else {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch(e) {}
+}
+
+// --- CARGA Y GUARDADO DE ESTADOS ---
+async function loadSchedule() {
+  schedule = await storageGet(scheduleKey) || [
+    { id:'metoprolol-am', time:'10:00', med:'Metoprolol' },
+    { id:'espironolactona', time:'11:00', med:'Espironolactona' },
+    { id:'alopurinol', time:'13:00', med:'Alopurinol' },
+    { id:'metformina-glib', time:'19:00', med:'Metformina y Glibenclamida' },
+    { id:'metoprolol-pm', time:'22:00', med:'Metoprolol' }
+  ];
+  // Ordenar por hora
+  schedule.sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
+}
+
+async function loadState(){
+  spokenToday = await storageGet(storageKey) || {};
+  takenToday = await storageGet(takenKey) || {};
+}
+
+async function saveSpoken(){ await storageSet(storageKey, spokenToday); }
+async function saveTaken(){ await storageSet(takenKey, takenToday); }
+async function saveSchedule(){ await storageSet(scheduleKey, schedule); }
 
 function toMinutes(hhmm){
+  if(!hhmm) return 9999;
   const [h,m] = hhmm.split(':').map(Number);
   return h*60+m;
 }
 
+// --- CONFIGURACIÓN DE VOZ EN ESPAÑOL ---
+let voices = [];
+function loadVoices() {
+  if ('speechSynthesis' in window) {
+    voices = speechSynthesis.getVoices();
+  }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
 function speak(text){
   if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel(); // Detiene lo que esté hablando para no encimar
+  
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'es-MX';
   utter.rate = 0.95;
   utter.pitch = 1;
-  const voices = speechSynthesis.getVoices();
-  const esVoice = voices.find(v => v.lang && v.lang.startsWith('es'));
+  
+  // Buscar la mejor voz en español disponible
+  const esVoice = voices.find(v => v.lang === 'es-MX') || 
+                  voices.find(v => v.lang === 'es-ES') || 
+                  voices.find(v => v.lang && v.lang.startsWith('es'));
   if(esVoice) utter.voice = esVoice;
+  
   speechSynthesis.speak(utter);
 }
 
@@ -279,24 +410,7 @@ function announce(dose){
   speak(`Es hora de tomar tu medicina. ${dose.med}, programado para las ${dose.time}.`);
 }
 
-async function loadState(){
-  try{
-    const s = await window.storage.get(storageKey, false);
-    spokenToday = s ? JSON.parse(s.value) : {};
-  }catch(e){ spokenToday = {}; }
-  try{
-    const t = await window.storage.get(takenKey, false);
-    takenToday = t ? JSON.parse(t.value) : {};
-  }catch(e){ takenToday = {}; }
-}
-
-async function saveSpoken(){
-  try{ await window.storage.set(storageKey, JSON.stringify(spokenToday), false); }catch(e){}
-}
-async function saveTaken(){
-  try{ await window.storage.set(takenKey, JSON.stringify(takenToday), false); }catch(e){}
-}
-
+// --- INTERFAZ VISUAL ---
 function render(){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
@@ -318,27 +432,45 @@ function render(){
   schedule.forEach(d => {
     const dMin = toMinutes(d.time);
     const isTaken = !!takenToday[d.id];
-    const isDue = !isTaken && Math.abs(dMin - nowMin) <= 15 && dMin <= nowMin;
+    // Marcar como 'due' si ya pasó la hora, no está tomada, y está dentro de la ventana de recordatorio
+    const isDue = !isTaken && dMin <= nowMin;
 
     const el = document.createElement('div');
     el.className = 'dose' + (isTaken ? ' taken' : '') + (isDue ? ' due' : '');
+    
+    const actionsHTML = isTaken 
+      ? `<button class="mark-btn" data-id="${d.id}">Tomada ✓</button>
+         <button class="delete-btn" data-id="${d.id}">Eliminar</button>`
+      : `<button class="mark-btn" data-id="${d.id}">Marcar tomada</button>
+         <button class="delete-btn" data-id="${d.id}">Eliminar</button>`;
+
     el.innerHTML = `
       <div class="dose-info">
         <div class="time">${d.time} HRS</div>
         <div class="med">${d.med}</div>
       </div>
       <div class="dose-actions">
-        <button data-id="${d.id}">${isTaken ? 'Tomada ✓' : 'Marcar tomada'}</button>
+        ${actionsHTML}
       </div>
     `;
     timeline.appendChild(el);
   });
 
-  document.querySelectorAll('.dose-actions button').forEach(btn => {
+  // Eventos de los botones
+  document.querySelectorAll('.mark-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-id');
       takenToday[id] = !takenToday[id];
       await saveTaken();
+      render();
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      schedule = schedule.filter(d => d.id !== id);
+      await saveSchedule();
       render();
     });
   });
@@ -352,43 +484,89 @@ function render(){
   }
 }
 
+// --- LÓGICA DE ALARMAS PERSISTENTES ---
 function checkAlarms(){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
+  const currentMinutes = nowMin;
+
   schedule.forEach(d => {
     const dMin = toMinutes(d.time);
-    if(voiceEnabled && dMin === nowMin && !spokenToday[d.id]){
-      announce(d);
-      spokenToday[d.id] = true;
-      saveSpoken();
-      render();
+    // Si ya es hora o pasó la hora, y NO se ha marcado como tomada
+    if(voiceEnabled && dMin <= currentMinutes && !takenToday[d.id]){
+      
+      // Si nunca se ha hablado hoy, hablar inmediatamente
+      if(!spokenToday[d.id]){
+        announce(d);
+        spokenToday[d.id] = true;
+        lastReminded[d.id] = currentMinutes; // Guarda el minuto del último aviso
+        saveSpoken();
+        render();
+      } 
+      // Si ya se habló antes, verificar si han pasado 3 minutos (o más) para volver a hablar
+      else {
+        const lastSpoke = lastReminded[d.id] || -999;
+        if (currentMinutes - lastSpoke >= 3) { // REPITE CADA 3 MINUTOS
+          announce(d);
+          lastReminded[d.id] = currentMinutes;
+        }
+      }
     }
   });
 }
 
+// --- EVENTOS DE BOTONES ---
 document.getElementById('enable-btn').addEventListener('click', () => {
   voiceEnabled = true;
   document.getElementById('voice-dot').classList.add('on');
   document.getElementById('voice-status').textContent = 'Voz activada';
   document.getElementById('enable-btn').textContent = 'Probar voz';
+  loadVoices(); // Cargar voces al interactuar
   speak('Aviso de voz activado. Te recordaré cada medicina a su hora.');
 });
 
 document.getElementById('reset-btn').addEventListener('click', async () => {
   takenToday = {};
   spokenToday = {};
+  lastReminded = {};
   await saveTaken();
   await saveSpoken();
   render();
 });
 
+document.getElementById('add-med-btn').addEventListener('click', async () => {
+  const nameInput = document.getElementById('new-med-name');
+  const timeInput = document.getElementById('new-med-time');
+  
+  if(nameInput.value.trim() === '' || timeInput.value === ''){
+    alert('Por favor escribe el nombre y la hora de la medicina.');
+    return;
+  }
+
+  const newMed = {
+    id: 'med-' + Date.now(), // ID único
+    time: timeInput.value,
+    med: nameInput.value.trim()
+  };
+
+  schedule.push(newMed);
+  // Ordenar por hora
+  schedule.sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
+  
+  await saveSchedule();
+  
+  nameInput.value = '';
+  timeInput.value = '';
+  render();
+});
+
+// --- INICIALIZACIÓN ---
 (async function init(){
+  await loadSchedule();
   await loadState();
   render();
+  // Revisar cada 15 segundos si es hora de alguna medicina
   setInterval(() => { render(); checkAlarms(); }, 15000);
-  if('speechSynthesis' in window){
-    speechSynthesis.onvoiceschanged = () => {};
-  }
 })();
 </script>
 
