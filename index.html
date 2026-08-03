@@ -28,250 +28,48 @@
     min-height:100vh;
     padding:24px 16px 60px;
   }
-  .display{
-    font-family: Georgia, 'Times New Roman', serif;
-  }
-  header{
-    max-width:520px;
-    margin:0 auto 22px;
-  }
-  .eyebrow{
-    font-size:12px;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    color:var(--teal-bright);
-    margin:0 0 6px;
-    font-weight:600;
-  }
-  h1{
-    font-size:28px;
-    margin:0 0 4px;
-    font-weight:600;
-  }
-  .sub{
-    color:var(--text-dim);
-    font-size:14px;
-    margin:0;
-  }
-  .clock-panel{
-    max-width:520px;
-    margin:0 auto 20px;
-    background:linear-gradient(160deg, var(--panel-2), var(--panel));
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:22px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-  #clock{
-    font-size:34px;
-    font-weight:300;
-    letter-spacing:0.02em;
-    font-variant-numeric:tabular-nums;
-  }
-  .next-dose{
-    text-align:right;
-  }
-  .next-dose .label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:var(--text-dim);
-    margin-bottom:4px;
-  }
-  .next-dose .name{
-    font-size:16px;
-    font-weight:600;
-    color:var(--teal-bright);
-  }
-  .next-dose .time{
-    font-size:13px;
-    color:var(--text-dim);
-  }
-  .status-bar{
-    max-width:520px;
-    margin:0 auto 22px;
-    display:flex;
-    gap:10px;
-    align-items:center;
-    font-size:13px;
-    color:var(--text-dim);
-    padding:0 4px;
-  }
-  .dot{
-    width:8px;height:8px;border-radius:50%;
-    background:var(--text-dim);
-    flex-shrink:0;
-  }
+  .display{ font-family: Georgia, 'Times New Roman', serif; }
+  header{ max-width:520px; margin:0 auto 22px; }
+  .eyebrow{ font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--teal-bright); margin:0 0 6px; font-weight:600; }
+  h1{ font-size:28px; margin:0 0 4px; font-weight:600; }
+  .sub{ color:var(--text-dim); font-size:14px; margin:0; }
+  .clock-panel{ max-width:520px; margin:0 auto 20px; background:linear-gradient(160deg, var(--panel-2), var(--panel)); border:1px solid var(--line); border-radius:18px; padding:22px; display:flex; justify-content:space-between; align-items:center; }
+  #clock{ font-size:34px; font-weight:300; letter-spacing:0.02em; font-variant-numeric:tabular-nums; }
+  .next-dose{ text-align:right; }
+  .next-dose .label{ font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:4px; }
+  .next-dose .name{ font-size:16px; font-weight:600; color:var(--teal-bright); }
+  .next-dose .time{ font-size:13px; color:var(--text-dim); }
+  .status-bar{ max-width:520px; margin:0 auto 22px; display:flex; gap:10px; align-items:center; font-size:13px; color:var(--text-dim); padding:0 4px; }
+  .dot{ width:8px;height:8px;border-radius:50%; background:var(--text-dim); flex-shrink:0; }
   .dot.on{background:var(--teal-bright); box-shadow:0 0 8px var(--teal-bright);}
-  button.enable{
-    margin-left:auto;
-    background:var(--teal);
-    color:#04201d;
-    border:none;
-    padding:8px 14px;
-    border-radius:20px;
-    font-weight:600;
-    font-size:12px;
-    cursor:pointer;
-  }
+  button.enable{ margin-left:auto; background:var(--teal); color:#04201d; border:none; padding:8px 14px; border-radius:20px; font-weight:600; font-size:12px; cursor:pointer; }
   button.enable:hover{background:var(--teal-bright);}
-  
-  .timeline{
-    max-width:520px;
-    margin:0 auto;
-    position:relative;
-    padding-left:28px;
-  }
-  .timeline::before{
-    content:"";
-    position:absolute;
-    left:9px; top:6px; bottom:6px;
-    width:2px;
-    background:var(--line);
-  }
-  .dose{
-    position:relative;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px 18px;
-    margin-bottom:12px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-    transition:border-color .2s, background .2s;
-  }
-  .dose::before{
-    content:"";
-    position:absolute;
-    left:-23px; top:22px;
-    width:12px;height:12px;
-    border-radius:50%;
-    background:var(--bg);
-    border:2px solid var(--text-dim);
-  }
-  .dose.taken{
-    opacity:0.5;
-  }
-  .dose.taken::before{
-    background:var(--teal);
-    border-color:var(--teal);
-  }
-  .dose.due{
-    border-color:var(--amber);
-    background:linear-gradient(160deg, #2a2214, var(--panel));
-  }
-  .dose.due::before{
-    background:var(--amber);
-    border-color:var(--amber);
-    box-shadow:0 0 10px var(--amber);
-  }
-  .dose-info .time{
-    font-size:12px;
-    color:var(--teal-bright);
-    letter-spacing:0.06em;
-    margin-bottom:3px;
-    font-weight:600;
-  }
-  .dose-info .med{
-    font-size:16px;
-    font-weight:600;
-  }
-  .dose-actions{
-    display: flex;
-    gap: 8px;
-    flex-direction: column;
-  }
-  .dose-actions button{
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--text-dim);
-    padding:7px 12px;
-    border-radius:10px;
-    font-size:12px;
-    cursor:pointer;
-    white-space: nowrap;
-  }
-  .dose-actions button:hover{
-    border-color:var(--teal);
-    color:var(--teal-bright);
-  }
-  .dose-actions .delete-btn{
-    border-color: rgba(224, 88, 88, 0.3);
-    color: rgba(224, 88, 88, 0.8);
-  }
-  .dose-actions .delete-btn:hover{
-    border-color:var(--danger);
-    color:var(--danger);
-    background: rgba(224, 88, 88, 0.1);
-  }
-  .dose.taken .dose-actions button:not(.delete-btn){
-    border-color:var(--teal);
-    color:var(--teal);
-  }
-
-  /* Panel para agregar medicinas */
-  .add-panel{
-    max-width:520px;
-    margin:30px auto 20px;
-    background:var(--panel);
-    border:1px dashed var(--line);
-    border-radius:14px;
-    padding:20px;
-  }
-  .add-panel h3{
-    margin: 0 0 15px 0;
-    color: var(--teal-bright);
-    font-size: 16px;
-  }
-  .add-form{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .add-form input{
-    background: var(--bg);
-    border: 1px solid var(--line);
-    color: var(--text);
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 14px;
-  }
+  .timeline{ max-width:520px; margin:0 auto; position:relative; padding-left:28px; }
+  .timeline::before{ content:""; position:absolute; left:9px; top:6px; bottom:6px; width:2px; background:var(--line); }
+  .dose{ position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; transition:border-color .2s, background .2s; }
+  .dose::before{ content:""; position:absolute; left:-23px; top:22px; width:12px;height:12px; border-radius:50%; background:var(--bg); border:2px solid var(--text-dim); }
+  .dose.taken{ opacity:0.5; }
+  .dose.taken::before{ background:var(--teal); border-color:var(--teal); }
+  .dose.due{ border-color:var(--amber); background:linear-gradient(160deg, #2a2214, var(--panel)); }
+  .dose.due::before{ background:var(--amber); border-color:var(--amber); box-shadow:0 0 10px var(--amber); }
+  .dose-info .time{ font-size:12px; color:var(--teal-bright); letter-spacing:0.06em; margin-bottom:3px; font-weight:600; }
+  .dose-info .med{ font-size:16px; font-weight:600; }
+  .dose-actions{ display: flex; gap: 8px; flex-direction: column; }
+  .dose-actions button{ background:transparent; border:1px solid var(--line); color:var(--text-dim); padding:7px 12px; border-radius:10px; font-size:12px; cursor:pointer; white-space: nowrap; }
+  .dose-actions button:hover{ border-color:var(--teal); color:var(--teal-bright); }
+  .dose-actions .delete-btn{ border-color: rgba(224, 88, 88, 0.3); color: rgba(224, 88, 88, 0.8); }
+  .dose-actions .delete-btn:hover{ border-color:var(--danger); color:var(--danger); background: rgba(224, 88, 88, 0.1); }
+  .dose.taken .dose-actions button:not(.delete-btn){ border-color:var(--teal); color:var(--teal); }
+  .add-panel{ max-width:520px; margin:30px auto 20px; background:var(--panel); border:1px dashed var(--line); border-radius:14px; padding:20px; }
+  .add-panel h3{ margin: 0 0 15px 0; color: var(--teal-bright); font-size: 16px; }
+  .add-form{ display: flex; flex-wrap: wrap; gap: 10px; }
+  .add-form input{ background: var(--bg); border: 1px solid var(--line); color: var(--text); padding: 10px; border-radius: 10px; font-size: 14px; }
   .add-form input[type="text"]{ flex: 1; min-width: 150px; }
   .add-form input[type="time"]{ width: 110px; }
-  .add-form button{
-    background: var(--teal);
-    color: #04201d;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 5px;
-  }
+  .add-form button{ background: var(--teal); color: #04201d; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; margin-top: 5px; }
   .add-form button:hover{ background: var(--teal-bright); }
-
-  footer{
-    max-width:520px;
-    margin:10px auto 0;
-    text-align:center;
-    font-size:12px;
-    color:var(--text-dim);
-  }
-  footer button{
-    background:none;
-    border:1px solid var(--line);
-    color:var(--text-dim);
-    padding:8px 16px;
-    border-radius:20px;
-    font-size:12px;
-    cursor:pointer;
-  }
+  footer{ max-width:520px; margin:10px auto 0; text-align:center; font-size:12px; color:var(--text-dim); }
+  footer button{ background:none; border:1px solid var(--line); color:var(--text-dim); padding:8px 16px; border-radius:20px; font-size:12px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -313,19 +111,17 @@
 </footer>
 
 <script>
-// --- CONFIGURACIÓN INICIAL ---
 let schedule = [];
 let voiceEnabled = false;
 let spokenToday = {};
 let takenToday = {};
-let lastReminded = {}; // Controla cuándo fue el último recordatorio repetido
+let lastReminded = {};
 
 const todayKey = () => new Date().toISOString().slice(0,10);
 const storageKey = 'spoken-' + todayKey();
 const takenKey = 'taken-' + todayKey();
-const scheduleKey = 'medicine-schedule'; // Guardar medicinas permanentemente
+const scheduleKey = 'medicine-schedule';
 
-// --- MANEJO DE ALMACENAMIENTO ---
 async function storageGet(key) {
   try {
     if (window.storage && window.storage.get) {
@@ -348,7 +144,6 @@ async function storageSet(key, value) {
   } catch(e) {}
 }
 
-// --- CARGA Y GUARDADO DE ESTADOS ---
 async function loadSchedule() {
   schedule = await storageGet(scheduleKey) || [
     { id:'metoprolol-am', time:'10:00', med:'Metoprolol' },
@@ -357,7 +152,6 @@ async function loadSchedule() {
     { id:'metformina-glib', time:'19:00', med:'Metformina y Glibenclamida' },
     { id:'metoprolol-pm', time:'22:00', med:'Metoprolol' }
   ];
-  // Ordenar por hora
   schedule.sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
 }
 
@@ -376,41 +170,41 @@ function toMinutes(hhmm){
   return h*60+m;
 }
 
-// --- CONFIGURACIÓN DE VOZ EN ESPAÑOL ---
-let voices = [];
-function loadVoices() {
-  if ('speechSynthesis' in window) {
-    voices = speechSynthesis.getVoices();
-  }
-}
-if ('speechSynthesis' in window) {
-  loadVoices();
-  speechSynthesis.onvoiceschanged = loadVoices;
-}
-
+// --- FUNCIÓN DE VOZ MEJORADA PARA CELULAR ---
 function speak(text){
   if(!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel(); // Detiene lo que esté hablando para no encimar
+  
+  // Cancelar cualquier voz anterior
+  speechSynthesis.cancel();
   
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'es-MX';
   utter.rate = 0.95;
   utter.pitch = 1;
   
-  // Buscar la mejor voz en español disponible
-  const esVoice = voices.find(v => v.lang === 'es-MX') || 
-                  voices.find(v => v.lang === 'es-ES') || 
-                  voices.find(v => v.lang && v.lang.startsWith('es'));
-  if(esVoice) utter.voice = esVoice;
+  // Buscar la voz EN EL MOMENTO EXACTO en que va a hablar
+  // (Esto soluciona el problema de los celulares que tardan en cargar las voces)
+  let availableVoices = speechSynthesis.getVoices();
+  let esVoice = availableVoices.find(v => v.lang === 'es-MX') || 
+                availableVoices.find(v => v.lang === 'es-ES') || 
+                availableVoices.find(v => v.lang === 'es-US') ||
+                availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+                
+  if(esVoice) {
+    utter.voice = esVoice;
+  }
   
-  speechSynthesis.speak(utter);
+  // Un pequeño truco para celulares: a veces necesitan un micro-retraso 
+  // después de cancelar para poder volver a hablar.
+  setTimeout(() => {
+    speechSynthesis.speak(utter);
+  }, 100);
 }
 
 function announce(dose){
   speak(`Es hora de tomar tu medicina. ${dose.med}, programado para las ${dose.time}.`);
 }
 
-// --- INTERFAZ VISUAL ---
 function render(){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
@@ -432,7 +226,6 @@ function render(){
   schedule.forEach(d => {
     const dMin = toMinutes(d.time);
     const isTaken = !!takenToday[d.id];
-    // Marcar como 'due' si ya pasó la hora, no está tomada, y está dentro de la ventana de recordatorio
     const isDue = !isTaken && dMin <= nowMin;
 
     const el = document.createElement('div');
@@ -456,7 +249,6 @@ function render(){
     timeline.appendChild(el);
   });
 
-  // Eventos de los botones
   document.querySelectorAll('.mark-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-id');
@@ -484,7 +276,6 @@ function render(){
   }
 }
 
-// --- LÓGICA DE ALARMAS PERSISTENTES ---
 function checkAlarms(){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
@@ -492,21 +283,16 @@ function checkAlarms(){
 
   schedule.forEach(d => {
     const dMin = toMinutes(d.time);
-    // Si ya es hora o pasó la hora, y NO se ha marcado como tomada
     if(voiceEnabled && dMin <= currentMinutes && !takenToday[d.id]){
-      
-      // Si nunca se ha hablado hoy, hablar inmediatamente
       if(!spokenToday[d.id]){
         announce(d);
         spokenToday[d.id] = true;
-        lastReminded[d.id] = currentMinutes; // Guarda el minuto del último aviso
+        lastReminded[d.id] = currentMinutes;
         saveSpoken();
         render();
-      } 
-      // Si ya se habló antes, verificar si han pasado 3 minutos (o más) para volver a hablar
-      else {
+      } else {
         const lastSpoke = lastReminded[d.id] || -999;
-        if (currentMinutes - lastSpoke >= 3) { // REPITE CADA 3 MINUTOS
+        if (currentMinutes - lastSpoke >= 3) {
           announce(d);
           lastReminded[d.id] = currentMinutes;
         }
@@ -515,13 +301,13 @@ function checkAlarms(){
   });
 }
 
-// --- EVENTOS DE BOTONES ---
 document.getElementById('enable-btn').addEventListener('click', () => {
   voiceEnabled = true;
   document.getElementById('voice-dot').classList.add('on');
   document.getElementById('voice-status').textContent = 'Voz activada';
   document.getElementById('enable-btn').textContent = 'Probar voz';
-  loadVoices(); // Cargar voces al interactuar
+  // Forzar la carga de voces al presionar el botón (necesario en celulares)
+  speechSynthesis.getVoices(); 
   speak('Aviso de voz activado. Te recordaré cada medicina a su hora.');
 });
 
@@ -544,15 +330,13 @@ document.getElementById('add-med-btn').addEventListener('click', async () => {
   }
 
   const newMed = {
-    id: 'med-' + Date.now(), // ID único
+    id: 'med-' + Date.now(),
     time: timeInput.value,
     med: nameInput.value.trim()
   };
 
   schedule.push(newMed);
-  // Ordenar por hora
   schedule.sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
-  
   await saveSchedule();
   
   nameInput.value = '';
@@ -560,12 +344,16 @@ document.getElementById('add-med-btn').addEventListener('click', async () => {
   render();
 });
 
-// --- INICIALIZACIÓN ---
 (async function init(){
+  // Cargar voces temprano por si el navegador las detecta rápido
+  if('speechSynthesis' in window){
+    speechSynthesis.getVoices();
+    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+  }
+  
   await loadSchedule();
   await loadState();
   render();
-  // Revisar cada 15 segundos si es hora de alguna medicina
   setInterval(() => { render(); checkAlarms(); }, 15000);
 })();
 </script>
