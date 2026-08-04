@@ -171,34 +171,62 @@ function toMinutes(hhmm){
 }
 
 // --- FUNCIÓN DE VOZ MEJORADA PARA CELULAR ---
-function speak(text){
-  if(!('speechSynthesis' in window)) return;
-  
-  // Cancelar cualquier voz anterior
+function pickSpanishVoice(){
+  const availableVoices = speechSynthesis.getVoices();
+  return availableVoices.find(v => v.lang === 'es-MX') ||
+         availableVoices.find(v => v.lang === 'es-ES') ||
+         availableVoices.find(v => v.lang === 'es-US') ||
+         availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('es')) ||
+         null;
+}
+
+function doSpeak(text){
   speechSynthesis.cancel();
-  
+
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'es-MX';
   utter.rate = 0.95;
   utter.pitch = 1;
-  
-  // Buscar la voz EN EL MOMENTO EXACTO en que va a hablar
-  // (Esto soluciona el problema de los celulares que tardan en cargar las voces)
-  let availableVoices = speechSynthesis.getVoices();
-  let esVoice = availableVoices.find(v => v.lang === 'es-MX') || 
-                availableVoices.find(v => v.lang === 'es-ES') || 
-                availableVoices.find(v => v.lang === 'es-US') ||
-                availableVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
-                
-  if(esVoice) {
+
+  const esVoice = pickSpanishVoice();
+  if(esVoice){
     utter.voice = esVoice;
+    document.getElementById('voice-status').textContent = 'Voz activada (' + esVoice.name + ')';
+  } else {
+    // No hay voz en español instalada en este dispositivo/navegador.
+    document.getElementById('voice-status').textContent = 'Sin voz en español instalada — revisa el idioma de tu teléfono';
   }
-  
-  // Un pequeño truco para celulares: a veces necesitan un micro-retraso 
-  // después de cancelar para poder volver a hablar.
+
   setTimeout(() => {
     speechSynthesis.speak(utter);
   }, 100);
+}
+
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+
+  // Si las voces todavía no cargan (común la primera vez en celulares),
+  // esperamos a que estén listas antes de hablar, con un límite de tiempo.
+  const voices = speechSynthesis.getVoices();
+  if(voices.length === 0){
+    let spoken = false;
+    const onVoices = () => {
+      if(spoken) return;
+      spoken = true;
+      speechSynthesis.removeEventListener('voiceschanged', onVoices);
+      doSpeak(text);
+    };
+    speechSynthesis.addEventListener('voiceschanged', onVoices);
+    // Si el navegador nunca dispara voiceschanged, hablamos igual después de 1s
+    setTimeout(() => {
+      if(spoken) return;
+      spoken = true;
+      speechSynthesis.removeEventListener('voiceschanged', onVoices);
+      doSpeak(text);
+    }, 1000);
+  } else {
+    doSpeak(text);
+  }
 }
 
 function announce(dose){
@@ -304,10 +332,7 @@ function checkAlarms(){
 document.getElementById('enable-btn').addEventListener('click', () => {
   voiceEnabled = true;
   document.getElementById('voice-dot').classList.add('on');
-  document.getElementById('voice-status').textContent = 'Voz activada';
   document.getElementById('enable-btn').textContent = 'Probar voz';
-  // Forzar la carga de voces al presionar el botón (necesario en celulares)
-  speechSynthesis.getVoices(); 
   speak('Aviso de voz activado. Te recordaré cada medicina a su hora.');
 });
 
